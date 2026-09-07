@@ -17,3 +17,6 @@ common
 
 [docker_hosts:children]
 common
+
+[os_version:children]
+common
