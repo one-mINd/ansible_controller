@@ -14,14 +14,16 @@ die() {
 [[ $# -lt 1 ]] && die "command argument required"
 command -v fzf >/dev/null 2>&1 || die "fzf is required (brew install fzf)"
 
-tags=$("$1" --list-tags | grep -o '\[[^]]*\]' | tr -d '[]' | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | grep -v '^$')
+tags=$("$1" --list-tags | grep -o '\[[^]]*\]' | tr -d '[]' | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | grep -v '^$' || true)
 
-[[ -z "$tags" ]] && die "no tags found from '$1 --list-tags'"
-
-selected=$(printf '%s' "$tags" | sort -u | fzf -m \
-  --prompt='Ansible tag(s)> ' \
-  --header='Tab: select, Enter: confirm, Esc: cancel' \
-  --height=40% --reverse || true)
+if [[ -z "$tags" ]]; then
+  selected="all"
+else
+  selected=$(printf '%s' "$tags" | sort -u | fzf -m \
+    --prompt='Ansible tag(s)> ' \
+    --header='Tab: select, Enter: confirm, Esc: cancel' \
+    --height=40% --reverse || true)
+fi
 
 if [[ -z "$selected" ]]; then
   printf 'all'
